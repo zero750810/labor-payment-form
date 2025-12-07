@@ -1,0 +1,475 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f3f4f6;
+    color: #1f2937;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* 主表單卡片 */
+.form-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+/* 標題列 */
+.header-bar {
+    background: #334155;
+    color: #fff;
+    text-align: center;
+    padding: 14px;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 2px;
+}
+
+/* 頂部三欄 */
+.top-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.2fr;
+    gap: 15px;
+    padding: 20px 25px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.top-row input {
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.date-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.date-field span {
+    font-size: 14px;
+    color: #6b7280;
+    white-space: nowrap;
+}
+
+.date-field input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+/* 區塊（帶左側標籤） */
+.section-row {
+    display: grid;
+    grid-template-columns: 50px 1fr;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.section-label {
+    background: #f9fafb;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 5px;
+}
+
+.section-label span {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-size: 14px;
+    font-weight: 500;
+    color: #4b5563;
+    letter-spacing: 2px;
+}
+
+.section-content {
+    padding: 20px 25px;
+}
+
+/* 無左側標籤的區塊 */
+.plain-section {
+    padding: 20px 25px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* 欄位行 */
+.field-row {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 12px;
+}
+
+.field-row:last-child {
+    margin-bottom: 0;
+}
+
+.field-row label {
+    font-size: 14px;
+    color: #4b5563;
+    text-align: right;
+}
+
+.field-row label small {
+    display: block;
+    font-size: 11px;
+    color: #9ca3af;
+}
+
+.field-row input,
+.field-row textarea,
+.field-row select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    background: #fff;
+}
+
+.field-row input:focus,
+.field-row textarea:focus,
+.field-row select:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+}
+
+.field-row textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.readonly-field {
+    background: #f3f4f6 !important;
+    color: #374151;
+    cursor: not-allowed;
+}
+
+/* 金額區塊 */
+.amount-row {
+    grid-template-columns: 100px 1fr auto;
+}
+
+.amount-row .unit {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.calc-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    padding-left: 115px;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.calc-row strong {
+    color: #1f2937;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.checkbox-label input {
+    width: 16px;
+    height: 16px;
+}
+
+.total-row {
+    padding: 12px 0;
+    padding-left: 115px;
+    font-size: 16px;
+    border-top: 1px solid #e5e7eb;
+    margin-top: 10px;
+}
+
+/* 上傳區 */
+.upload-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.upload-box {
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 30px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.upload-box:hover {
+    border-color: #6366f1;
+    background: #f5f3ff;
+}
+
+.upload-placeholder {
+    color: #9ca3af;
+}
+
+.upload-placeholder svg {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 10px;
+    stroke: #9ca3af;
+}
+
+.upload-placeholder p {
+    font-size: 15px;
+    font-weight: 500;
+    color: #4b5563;
+    margin-bottom: 4px;
+}
+
+.upload-placeholder small {
+    font-size: 12px;
+}
+
+.upload-preview {
+    max-width: 100%;
+    max-height: 120px;
+    display: none;
+}
+
+.upload-box.has-image .upload-placeholder {
+    display: none;
+}
+
+.upload-box.has-image .upload-preview {
+    display: block;
+}
+
+/* 簽名區 */
+.signature-box {
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.signature-box:hover {
+    border-color: #6366f1;
+    background: #f5f3ff;
+}
+
+.sign-link {
+    display: block;
+    margin-top: 8px;
+    color: #4f46e5;
+    font-size: 13px;
+}
+
+/* 付款方式 */
+.section-content > textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* 聲明 */
+.disclaimer {
+    margin-top: 25px;
+    padding: 0 10px;
+    font-size: 13px;
+    color: #6b7280;
+    line-height: 1.8;
+}
+
+.disclaimer p {
+    margin-bottom: 2px;
+}
+
+/* 下載按鈕 */
+.btn-wrapper {
+    text-align: center;
+    margin-top: 25px;
+    padding-bottom: 20px;
+}
+
+.btn-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 35px;
+    background: #334155;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-download:hover {
+    background: #1e293b;
+    transform: translateY(-1px);
+}
+
+.btn-download svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: #fff;
+    border-radius: 12px;
+    padding: 25px;
+    width: 90%;
+    max-width: 500px;
+}
+
+.modal-content h3 {
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.canvas-wrapper {
+    border: 2px solid #d1d5db;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+#signatureCanvas {
+    width: 100%;
+    height: 200px;
+    cursor: crosshair;
+    touch-action: none;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.btn-secondary {
+    padding: 10px 20px;
+    border: 1px solid #d1d5db;
+    background: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-secondary:hover {
+    background: #f9fafb;
+}
+
+.btn-primary {
+    padding: 10px 20px;
+    background: #334155;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-primary:hover {
+    background: #1e293b;
+}
+
+/* PDF 內容區（隱藏） */
+.pdf-content {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    width: 210mm;
+    background: #fff;
+    padding: 30px;
+}
+
+/* RWD */
+@media (max-width: 768px) {
+    .top-row {
+        grid-template-columns: 1fr;
+    }
+
+    .section-row {
+        grid-template-columns: 40px 1fr;
+    }
+
+    .section-label span {
+        font-size: 12px;
+    }
+
+    .field-row {
+        grid-template-columns: 80px 1fr;
+        gap: 10px;
+    }
+
+    .field-row label {
+        font-size: 13px;
+    }
+
+    .calc-row {
+        flex-direction: column;
+        align-items: flex-start;
+        padding-left: 95px;
+        gap: 5px;
+    }
+
+    .total-row {
+        padding-left: 95px;
+    }
+
+    .upload-grid {
+        grid-template-columns: 1fr;
+    }
+}

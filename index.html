@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>勞報單產生器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="vfs_fonts.js"></script>
+    <style>
+        #signatureCanvas {
+            touch-action: none;
+        }
+
+        input:read-only,
+        textarea:read-only,
+        select:disabled {
+            background-color: #e5e7eb !important;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-gray-100 text-gray-800">
+    <div class="max-w-4xl mx-auto py-8 px-4">
+
+        <!-- 主表單卡片 -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+
+            <!-- 深藍色標題列 -->
+            <div class="bg-slate-700 text-white text-center py-3 font-bold text-lg">
+                勞務報酬單
+            </div>
+
+            <form id="remunerationForm" class="py-6">
+
+                <!-- 頂部三欄：公司名稱、電話、日期 -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-6  pb-6 border-b border-gray-200">
+                    <div>
+                        <input type="text" id="companyName" class="w-full border border-gray-300 rounded px-3 py-2"
+                            placeholder="公司名稱" required>
+                    </div>
+                    <div>
+                        <input type="text" id="companyContact" class="w-full border border-gray-300 rounded px-3 py-2"
+                            placeholder="聯絡電話" required>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-600 whitespace-nowrap">製表日期:</span>
+                        <input type="date" id="formDate" class="flex-1 border border-gray-300 rounded px-3 py-2"
+                            required>
+                    </div>
+                </div>
+
+                <!-- 領款人基本資料 -->
+                <div class="flex border-b border-gray-200 mb-0">
+                    <div class="w-12 bg-gray-50 border-r border-gray-200 flex items-center justify-center">
+                        <span class="text-sm text-gray-600 font-medium"
+                            style="writing-mode: vertical-rl;">領款人基本資料</span>
+                    </div>
+                    <div class="flex-1 py-4  space-y-3">
+                        <div class="flex items-center px-4">
+                            <label class="w-28 text-sm text-gray-600 text-right pr-4">姓名</label>
+                            <input type="text" id="payeeName" class="flex-1 border border-gray-300 rounded px-3 py-2 mr-3"
+                                placeholder="請輸入姓名" required>
+                        </div>
+                        <div class="flex items-center px-4">
+                            <label class="w-28 text-sm text-gray-600 text-right pr-4">身分證字號<br><span
+                                    class="text-xs text-gray-400">(外國籍請填居留證號)</span></label>
+                            <input type="text" id="idNumber" class="flex-1 border border-gray-300 rounded px-3 py-2 mr-3"
+                                placeholder="請輸入身分證字號或居留證號" required maxlength="10">
+                        </div>
+                        <div class="flex items-center px-4">
+                            <label class="w-28 text-sm text-gray-600 text-right pr-4">聯絡方式</label>
+                            <input type="text" id="payeeContact" class="flex-1 border border-gray-300 rounded px-3 py-2 mr-3"
+                                placeholder="請輸入聯絡方式 (Email 或電話)" required>
+                        </div>
+                        <div class="flex items-center px-4">
+                            <label class="w-28 text-sm text-gray-600 text-right pr-4">戶籍地址</label>
+                            <input type="text" id="address" class="flex-1 border border-gray-300 rounded px-3 py-2 mr-3"
+                                placeholder="請輸入戶籍地址" required>
+                        </div>
+                        <div class="flex items-center px-4">
+                            <label class="w-28 text-sm text-gray-600 text-right pr-4">國籍</label>
+                            <input type="text" id="nationality" class="flex-1 border border-gray-300 rounded px-3 py-2 mr-3" value="臺灣" >
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 專案資訊 -->
+                <div class="flex border-b border-gray-200 mb-0">
+                    <div class="w-12 bg-gray-50 border-r border-gray-200 flex items-center justify-center">
+                        <span class="text-sm text-gray-600 font-medium"
+                            style="writing-mode: vertical-rl;">專案資訊</span>
+                    </div>
+                    <div class="flex-1 py-4 space-y-3">
+                        <div class="flex items-center px-4">
+                            <label class="w-28 text-sm text-gray-600 text-right pr-4">專案名稱</label>
+                            <input type="text" id="projectName" class="flex-1 border border-gray-300 rounded px-3 py-2 mr-3"
+                                required>
+                        </div>
+                        <div class="flex items-center px-4">
+                            <label class="w-28 text-sm text-gray-600 text-right pr-4">勞務內容</label>
+                            <textarea id="serviceContent" rows="2"
+                                class="flex-1 border border-gray-300 rounded px-3 py-2 mr-3 resize-none" required></textarea>
+                        </div>
+                        <div class="flex items-center px-4">
+                            <label class="w-28 text-sm text-gray-600 text-right pr-4">所得類別</label>
+                            <select id="incomeCategory" class="flex-1 border border-gray-300 rounded px-3 py-2 mr-3 bg-white"
+                                required>
+                                <option value="">請選擇</option>
+                                <option value="9A 執行業務所得">9A 執行業務所得</option>
+                                <option value="9B 稿費所得">9B 稿費所得</option>
+                                <option value="50 薪資所得">50 薪資所得</option>
+                                <option value="92 其他所得">92 其他所得</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 金額區塊 -->
+                <div class="flex border-b border-gray-200">
+                    <div class="w-20 bg-gray-50 border-r border-gray-200 flex items-center justify-center">
+                        <span class="text-sm text-gray-600 font-medium" style="writing-mode: vertical-rl;">金額</span>
+                    </div>
+                    <div class="flex-1 py-4 space-y-3">
+                        <div class="flex items-center px-4">
+                            <label class="w-28 text-sm text-gray-600 text-right pr-4">應付總額：</label>
+                            <input type="number" id="totalAmount"
+                                class="flex-1 border border-gray-300 rounded px-3 py-2" required min="0">
+                            <span class="ml-2 text-gray-600">元</span>
+                        </div>
+                        <div class="flex items-center px-4 text-sm text-gray-600">
+                            <span class="w-28"></span>
+                            <span>− 代扣繳所得稅：(達 20,010 元, 代扣繳 10%)：<strong id="taxAmountDisplay">0</strong> 元</span>
+                        </div>
+                        <div class="flex items-center px-4 text-sm text-gray-600">
+                            <span class="w-28"></span>
+                            <span class="flex-1">− 二代健保補充保費： (達 20,000 元, 代扣繳 2.11%)：<strong
+                                    id="healthInsuranceDisplay">0</strong> 元</span>
+                            <label class="flex items-center gap-1 text-sm">
+                                <input type="checkbox" id="unionMember" class="rounded">
+                                <span>領款人有投保工會</span>
+                            </label>
+                        </div>
+                        <div class="flex items-center px-4 font-bold text-gray-800">
+                            <span class="w-28 text-right pr-4">=</span>
+                            <span>應付淨額：<span id="netAmountDisplay">0</span> 元</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 領款人身分證件 -->
+                <div class="flex border-b border-gray-200">
+                    <div class="w-20 bg-gray-50 border-r border-gray-200 flex items-center justify-center">
+                        <span class="text-sm text-gray-600 font-medium"
+                            style="writing-mode: vertical-rl;">領款人身分證件</span>
+                    </div>
+                    <div class="flex-1 p-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div id="idFrontArea"
+                                class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors">
+                                <input type="file" id="idFront" accept="image/*" class="hidden">
+                                <div id="idFrontPlaceholder" class="flex flex-col items-center">
+                                    <svg class="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    <p class="font-medium text-gray-700">正面</p>
+                                    <p class="text-sm text-gray-500">點擊上傳圖片</p>
+                                </div>
+                                <img id="idFrontPreview" class="max-h-32 mx-auto hidden">
+                            </div>
+                            <div id="idBackArea"
+                                class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors">
+                                <input type="file" id="idBack" accept="image/*" class="hidden">
+                                <div id="idBackPlaceholder" class="flex flex-col items-center">
+                                    <svg class="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    <p class="font-medium text-gray-700">反面</p>
+                                    <p class="text-sm text-gray-500">點擊上傳圖片</p>
+                                </div>
+                                <img id="idBackPreview" class="max-h-32 mx-auto hidden">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 付款方式 -->
+                <div class="flex border-b border-gray-200 mb-0">
+                    <div class="w-20 bg-gray-50 border-r border-gray-200 flex items-center justify-center">
+                        <span class="text-sm text-gray-600 font-medium" style="writing-mode: vertical-rl;">付款方式</span>
+                    </div>
+                    <div class="flex-1 py-4 space-y-3">
+                        <div class="flex items-center px-4">
+                            <label class="w-20 text-sm text-gray-600 text-right pr-4">銀行</label>
+                            <input type="text" id="bankName" class="flex-1 border border-gray-300 rounded px-3 py-2 mr-3"
+                                placeholder="請輸入銀行名稱">
+                        </div>
+                        <div class="flex items-center px-4">
+                            <label class="w-20 text-sm text-gray-600 text-right pr-4">分行</label>
+                            <input type="text" id="branchName" class="flex-1 border border-gray-300 rounded px-3 py-2 mr-3"
+                                placeholder="請輸入分行名稱">
+                        </div>
+                        <div class="flex items-center px-4">
+                            <label class="w-20 text-sm text-gray-600 text-right pr-4">戶名</label>
+                            <input type="text" id="accountName" class="flex-1 border border-gray-300 rounded px-3 py-2 mr-3"
+                                placeholder="請輸入戶名">
+                        </div>
+                        <div class="flex items-center px-4">
+                            <label class="w-20 text-sm text-gray-600 text-right pr-4">帳號</label>
+                            <input type="text" id="accountNumber" class="flex-1 border border-gray-300 rounded px-3 py-2 mr-3"
+                                placeholder="請輸入帳號">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 簽名 -->
+                <div class="flex border-b border-gray-200">
+                    <div class="w-20 bg-gray-50 border-r border-gray-200 flex items-center justify-center">
+                        <span class="text-sm text-gray-600 font-medium" style="writing-mode: vertical-rl;">簽名</span>
+                    </div>
+                    <div class="flex-1 p-4">
+                        <div id="signatureArea" class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors"
+                            onclick="document.getElementById('signatureModal').classList.remove('hidden')">
+                            <div id="signaturePlaceholder" class="flex flex-col items-center">
+                                <svg class="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                                <p class="font-medium text-gray-700">領款人簽名</p>
+                                <p class="text-sm text-gray-500">點擊手寫簽名</p>
+                            </div>
+                            <img id="signaturePreview" class="max-h-24 mx-auto hidden">
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+        <!-- 聲明 -->
+        <div class="mt-6 text-sm text-gray-600 space-y-1">
+            <p><strong>聲明：</strong></p>
+            <p>1. 本工具目前正於封測中, 若有任何改善建議或是問題, 歡迎聯繫我們。</p>
+            <p>2. 請注意重新整理網頁後資料將會消失，本工具並不會搜集任何有關勞報單的資料與圖片, 請安心使用。</p>
+            <p>3. 本工具僅提供輔本功能, 不提供法律意見, 也不介入雙方勞務內或果與責任, 請自行確認勞報單內容是否符合法規。</p>
+        </div>
+
+        <!-- 下載按鈕 -->
+        <div class="mt-6 flex justify-center">
+            <button type="button" id="downloadPdf"
+                class="px-8 py-3 bg-slate-700 text-white font-bold rounded-lg hover:bg-slate-800 transition-colors flex items-center gap-2">
+                下載勞務報酬單
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- 簽名 Modal -->
+    <div id="signatureModal"
+        class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-lg w-full p-6">
+            <h3 class="text-lg font-bold mb-4">手寫簽名</h3>
+            <div class="border-2 border-gray-300 rounded-lg overflow-hidden bg-white mb-4">
+                <canvas id="signatureCanvas" class="w-full h-48 cursor-crosshair"></canvas>
+            </div>
+            <div class="flex gap-3 justify-end">
+                <button type="button" id="clearSignature"
+                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100">清除</button>
+                <button type="button" id="cancelSignature"
+                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100">取消</button>
+                <button type="button" id="confirmSignature"
+                    class="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800">確認</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden fields -->
+    <input type="hidden" id="taxAmount" value="0">
+    <input type="hidden" id="healthInsurance" value="0">
+    <input type="hidden" id="netAmount" value="0">
+
+
+    <script src="script.js"></script>
+</body>
+
+</html>

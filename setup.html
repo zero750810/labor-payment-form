@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>勞報單產生器 - 設定</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Setup 頁面專用樣式 */
+        body {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            min-height: 100vh;
+        }
+
+        .setup-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .setup-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .setup-header h1 {
+            color: #fff;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .setup-header p {
+            color: #9ca3af;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .setup-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .setup-card h2 {
+            font-size: 1.1rem;
+            color: #111827;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 0 10px;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            position: relative;
+        }
+
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 60%;
+            width: 80%;
+            height: 2px;
+            background: #e5e7eb;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step.active .step-number {
+            background: #4f46e5;
+            color: #fff;
+        }
+
+        .step.completed .step-number {
+            background: #10b981;
+            color: #fff;
+        }
+
+        .step-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            text-align: center;
+        }
+
+        .step.active .step-label {
+            color: #4f46e5;
+            font-weight: 500;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .form-actions .btn {
+            flex: 1;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #e5e7eb;
+            color: #374151;
+        }
+
+        .btn-outline:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+
+        /* URL 結果區 */
+        .url-result {
+            display: none;
+            margin-top: 24px;
+            padding: 20px;
+            background: #f0fdf4;
+            border-radius: 8px;
+            border: 1px solid #86efac;
+        }
+
+        .url-result.show {
+            display: block;
+        }
+
+        .url-result h3 {
+            color: #166534;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+        }
+
+        .url-result .url-box {
+            display: flex;
+            gap: 8px;
+        }
+
+        .url-result input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #86efac;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            background: #fff;
+        }
+
+        .url-result .btn-copy {
+            padding: 10px 16px;
+            background: #16a34a;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .url-result .btn-copy:hover {
+            background: #15803d;
+        }
+
+        .url-result .btn-copy.copied {
+            background: #166534;
+        }
+
+        .url-result .hint {
+            margin-top: 12px;
+            font-size: 0.8rem;
+            color: #166534;
+        }
+
+        /* 預覽連結 */
+        .preview-link {
+            margin-top: 12px;
+            text-align: center;
+        }
+
+        .preview-link a {
+            color: #4f46e5;
+            font-size: 0.875rem;
+        }
+
+        /* 表單元素樣式 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .form-group .required {
+            color: #ef4444;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #9ca3af;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-group select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: #4f46e5;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #4338ca;
+        }
+
+        @media (max-width: 500px) {
+            .steps {
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+            .step:not(:last-child)::after {
+                display: none;
+            }
+            .step {
+                width: 45%;
+                flex: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="setup-container">
+        <header class="setup-header">
+            <h1>勞報單產生器</h1>
+            <p>快速生成合規的勞務報酬單<br>填寫專案資訊後，將連結分享給受款人填寫</p>
+        </header>
+
+        <!-- 步驟指示 -->
+        <div class="steps">
+            <div class="step active">
+                <div class="step-number">1</div>
+                <div class="step-label">填寫資訊</div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-label">產生連結</div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-label">分享填寫</div>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-label">下載 PDF</div>
+            </div>
+        </div>
+
+        <div class="setup-card">
+            <h2>專案資訊設定</h2>
+
+            <form id="setupForm">
+                <div class="form-group">
+                    <label for="projectName">專案名稱 <span class="required">*</span></label>
+                    <input type="text" id="projectName" name="projectName" required >
+                </div>
+
+                <div class="form-group">
+                    <label for="companyName">公司名稱 <span class="required">*</span></label>
+                    <input type="text" id="companyName" name="companyName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="companyContact">公司聯絡電話 <span class="required">*</span></label>
+                    <input type="text" id="companyContact" name="companyContact" required >
+                </div>
+
+                <div class="form-group">
+                    <label for="serviceContent">服務內容 <span class="required">*</span></label>
+                    <textarea id="serviceContent" name="serviceContent" rows="3" required
+                              placeholder="例：現場執行、活動企劃、舞台監督"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="incomeCategory">所得類別 <span class="required">*</span></label>
+                    <select id="incomeCategory" name="incomeCategory" required>
+                        <option value="">請選擇</option>
+                        <option value="9A 執行業務所得">9A 執行業務所得</option>
+                        <option value="9B 稿費所得">9B 稿費所得</option>
+                        <option value="50 薪資所得">50 薪資所得</option>
+                        <option value="92 其他所得">92 其他所得</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="totalAmount">總金額（選填）</label>
+                    <input type="number" id="totalAmount" name="totalAmount" min="0" step="1"
+                           placeholder="如需預填金額請輸入">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">產生分享連結</button>
+                </div>
+            </form>
+
+            <!-- URL 結果 -->
+            <div class="url-result" id="urlResult">
+                <h3>✓ 連結已生成</h3>
+                <div class="url-box">
+                    <input type="text" id="generatedUrl" readonly>
+                    <button type="button" id="copyUrl" class="btn-copy">複製</button>
+                </div>
+                <p class="hint">將此連結分享給受款人，對方可填寫個人資料並下載勞報單 PDF</p>
+                <div class="preview-link">
+                    <a href="#" id="previewLink" target="_blank">點此預覽表單頁面 →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('setupForm');
+            const urlResult = document.getElementById('urlResult');
+            const generatedUrlInput = document.getElementById('generatedUrl');
+            const copyBtn = document.getElementById('copyUrl');
+            const previewLink = document.getElementById('previewLink');
+            const steps = document.querySelectorAll('.step');
+
+            // 表單提交 - 產生連結
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const params = new URLSearchParams();
+
+                const fields = ['projectName', 'companyName', 'companyContact', 'serviceContent', 'incomeCategory', 'totalAmount'];
+
+                fields.forEach(fieldId => {
+                    const value = document.getElementById(fieldId).value.trim();
+                    if (value) {
+                        params.set(fieldId, value);
+                    }
+                });
+
+                // 生成完整 URL
+                const baseUrl = window.location.origin + window.location.pathname.replace('setup.html', 'index.html');
+                const fullUrl = baseUrl + '?' + params.toString();
+
+                generatedUrlInput.value = fullUrl;
+                previewLink.href = fullUrl;
+                urlResult.classList.add('show');
+
+                // 更新步驟狀態
+                steps[0].classList.remove('active');
+                steps[0].classList.add('completed');
+                steps[1].classList.add('active');
+
+                // 滾動到結果
+                urlResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+
+            // 複製連結
+            copyBtn.addEventListener('click', function() {
+                generatedUrlInput.select();
+                document.execCommand('copy');
+
+                copyBtn.textContent = '已複製！';
+                copyBtn.classList.add('copied');
+
+                // 更新步驟
+                steps[1].classList.remove('active');
+                steps[1].classList.add('completed');
+                steps[2].classList.add('active');
+
+                setTimeout(() => {
+                    copyBtn.textContent = '複製';
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>
