@@ -106,6 +106,7 @@ function calculateAmounts() {
 function initImageUpload() {
     setupUploadArea('idFrontArea', 'idFront', 'idFrontPreview', 'idFrontPlaceholder');
     setupUploadArea('idBackArea', 'idBack', 'idBackPreview', 'idBackPlaceholder');
+    setupUploadArea('bankBookArea', 'bankBook', 'bankBookPreview', 'bankBookPlaceholder');
 }
 
 function setupUploadArea(areaId, inputId, previewId, placeholderId) {
@@ -376,6 +377,7 @@ function generatePdfDocDefinition() {
     const idFrontPreview = document.getElementById('idFrontPreview');
     const idBackPreview = document.getElementById('idBackPreview');
     const signaturePreview = document.getElementById('signaturePreview');
+    const bankBookPreview = document.getElementById('bankBookPreview');
 
     const formatDate = (dateStr) => {
         if (!dateStr) return '';
@@ -407,6 +409,7 @@ function generatePdfDocDefinition() {
     const hasIdFront = idFrontPreview.src && idFrontPreview.src.startsWith('data:');
     const hasIdBack = idBackPreview.src && idBackPreview.src.startsWith('data:');
     const hasSignature = signaturePreview.src && signaturePreview.src.startsWith('data:');
+    const hasBankBook = bankBookPreview.src && bankBookPreview.src.startsWith('data:');
 
     // 身分證正面內容
     const idFrontContent = hasIdFront
@@ -418,9 +421,14 @@ function generatePdfDocDefinition() {
         ? { image: idBackPreview.src, width: 220, height: 140, alignment: 'center' }
         : { text: '', margin: [0, 60, 0, 60] };
 
-    // 簽名內容
+    // 簽名內容 (30% 寬度，約 150px)
     const signatureContent = hasSignature
-        ? { image: signaturePreview.src, width: 280, height: 100, alignment: 'center' }
+        ? { image: signaturePreview.src, width: 140, height: 90, alignment: 'center' }
+        : { text: '', margin: [0, 40, 0, 40] };
+
+    // 帳戶影本內容 (70% 寬度，約 350px)
+    const bankBookContent = hasBankBook
+        ? { image: bankBookPreview.src, width: 320, height: 120, alignment: 'center' }
         : { text: '', margin: [0, 50, 0, 50] };
 
     const content = [
@@ -476,21 +484,7 @@ function generatePdfDocDefinition() {
                     [
                         {},
                         { text: '勞務內容', style: 'labelCell' },
-                        { text: serviceContent || '', style: 'valueCell', colSpan: 3 },
-                        {}, {}
-                    ]
-                ]
-            },
-            layout: solidBorder
-        },
-
-        // 所得類別
-        {
-            table: {
-                widths: [24, 60, '*'],
-                body: [
-                    [
-                        { text: '', style: 'verticalLabel' },
+                        { text: serviceContent || '', style: 'valueCell' },
                         { text: '所得類別', style: 'labelCell' },
                         { text: incomeCategory || '', style: 'valueCell' }
                     ]
@@ -566,16 +560,14 @@ function generatePdfDocDefinition() {
         // 付款方式區塊
         {
             table: {
-                widths: [24, 60, '*'],
+                widths: [60, '*'],
                 body: [
                     [
-                        { text: '', style: 'verticalLabel' },
                         { text: '付款方式', style: 'labelCell' },
                         {
                             text: [
                                 { text: '透過銀行轉帳/匯款，領款人帳戶資訊\n', bold: true },
-                                `銀行：${bankName || ''}　分行：${branchName || ''}\n`,
-                                `戶名：${accountName || ''}　帳號：${accountNumber || ''}\n`
+                                `銀行：${bankName || ''}　分行：${branchName || ''}　帳號：${accountNumber || ''}　戶名：${accountName || ''}`                   
                             ],
                             style: 'valueCell',
                             lineHeight: 1.4
@@ -586,24 +578,32 @@ function generatePdfDocDefinition() {
             layout: solidBorder
         },
 
-        // 簽名區塊 (設定 unbreakable 避免被分頁切斷)
+        // 帳戶影本與簽名區塊 (設定 unbreakable 避免被分頁切斷)
         {
             unbreakable: true,
             stack: [
                 {
                     table: {
-                        widths: [24, '*'],
+                        widths: ['65%', '35%'],
                         body: [
-                            [
-                                { text: '簽\n名', style: 'verticalLabel', rowSpan: 2, alignment: 'center' },
-                                { text: '領款人', style: 'labelCell', alignment: 'center' }
+                            [                               
+                                { text: '帳戶影本', style: 'labelCell', alignment: 'center' },
+                                { text: '領款人簽名', style: 'labelCell', alignment: 'center' }
                             ],
-                            [
-                                {},
+                            [                               
                                 {
                                     table: {
                                         widths: ['*'],
-                                        heights: [100],
+                                        heights: [140],
+                                        body: [[bankBookContent]]
+                                    },
+                                    layout: dashedBox,
+                                    alignment: 'center'
+                                },
+                                {
+                                    table: {
+                                        widths: ['*'],
+                                        heights: [140],
                                         body: [[signatureContent]]
                                     },
                                     layout: dashedBox,

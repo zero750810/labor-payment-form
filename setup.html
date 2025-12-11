@@ -392,6 +392,20 @@
             const previewLink = document.getElementById('previewLink');
             const steps = document.querySelectorAll('.step');
 
+            // 從 URL 參數預填公司資訊
+            const urlParams = new URLSearchParams(window.location.search);
+            const prefillFields = ['companyName', 'companyContact'];
+
+            prefillFields.forEach(fieldId => {
+                const value = urlParams.get(fieldId);
+                if (value) {
+                    const input = document.getElementById(fieldId);
+                    if (input) {
+                        input.value = value;
+                    }
+                }
+            });
+
             // 表單提交 - 產生連結
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
