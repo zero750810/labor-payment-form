@@ -428,7 +428,7 @@ function generatePdfDocDefinition() {
 
     // 帳戶影本內容 (70% 寬度，約 350px)
     const bankBookContent = hasBankBook
-        ? { image: bankBookPreview.src, width: 320, height: 120, alignment: 'center' }
+        ? { image: bankBookPreview.src, width: 320, height: 140, alignment: 'center' }
         : { text: '', margin: [0, 50, 0, 50] };
 
     const content = [
