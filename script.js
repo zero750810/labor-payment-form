@@ -1,6 +1,6 @@
 // 勞報單產生器 - JavaScript
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     initUrlParams();
     initDateField();
     initAmountCalculation();
@@ -327,6 +327,36 @@ function loadChineseFont() {
 
 
 function generatePdf() {
+    // 檢查所有必填欄位
+    const requiredFields = [
+        { id: 'payeeName', label: '姓名' },
+        { id: 'nationality', label: '國籍' },
+        { id: 'idNumber', label: '身分證字號' },
+        { id: 'address', label: '戶籍地址' },
+        { id: 'payeeContact', label: '聯絡方式' }
+    ];
+
+    // 檢查必填欄位是否都已填寫
+    for (const field of requiredFields) {
+        const element = document.getElementById(field.id);
+        const value = element.value.trim();
+
+        if (!value) {
+            alert(`請填寫「${field.label}」欄位`);
+            element.focus();
+            return;
+        }
+    }
+
+    // 檢查簽名是否已填寫
+    const signaturePreview = document.getElementById('signaturePreview');
+    const hasSignature = signaturePreview.src && signaturePreview.src.startsWith('data:') && !signaturePreview.classList.contains('hidden');
+
+    if (!hasSignature) {
+        alert('請先完成領款人簽名');
+        return;
+    }
+
     const btn = document.getElementById('downloadPdf');
     btn.disabled = true;
     btn.innerHTML = '<svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> 產生中...';
@@ -346,7 +376,7 @@ function generatePdf() {
 
     } catch (error) {
         console.error('PDF 生成失敗:', error);
-        alert('PDF 生成失敗，請稍後再試');
+        alert('PDF 生成失敗,請稍後再試');
     } finally {
         btn.disabled = false;
         btn.innerHTML = '下載勞務報酬單 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>';
@@ -464,13 +494,13 @@ function generatePdfDocDefinition() {
                     [
                         { text: '領\n款\n人\n基\n本\n資\n料', style: 'verticalLabel', rowSpan: 4, alignment: 'center' },
                         { text: '姓名', style: 'labelCell' },
-                        { text: payeeName || '', style: 'valueCell'},
+                        { text: payeeName || '', style: 'valueCell' },
                         { text: '國籍', style: 'labelCell' },
                         { text: nationality || '', style: 'valueCell' },
                     ],
                     [
                         {},
-                        { text: '身分證字號', style: 'labelCell', fontSize: 8 },
+                        { text: '身分證字號', style: 'labelCell' },
                         { text: idNumber || '', style: 'valueCell' },
                         { text: '聯絡方式', style: 'labelCell' },
                         { text: payeeContact || '', style: 'valueCell' }
@@ -480,7 +510,7 @@ function generatePdfDocDefinition() {
                         { text: '戶籍地址', style: 'labelCell' },
                         { text: address || '', style: 'valueCell', colSpan: 3 },
                         {}, {}
-                    ],          
+                    ],
                     [
                         {},
                         { text: '勞務內容', style: 'labelCell' },
@@ -567,7 +597,7 @@ function generatePdfDocDefinition() {
                         {
                             text: [
                                 { text: '透過銀行轉帳/匯款，領款人帳戶資訊\n', bold: true },
-                                `銀行：${bankName || ''}　分行：${branchName || ''}　帳號：${accountNumber || ''}　戶名：${accountName || ''}`                   
+                                `銀行：${bankName || ''}　分行：${branchName || ''}　帳號：${accountNumber || ''}　戶名：${accountName || ''}`
                             ],
                             style: 'valueCell',
                             lineHeight: 1.4
@@ -586,11 +616,11 @@ function generatePdfDocDefinition() {
                     table: {
                         widths: ['65%', '35%'],
                         body: [
-                            [                               
+                            [
                                 { text: '帳戶影本', style: 'labelCell', alignment: 'center' },
                                 { text: '領款人簽名', style: 'labelCell', alignment: 'center' }
                             ],
-                            [                               
+                            [
                                 {
                                     table: {
                                         widths: ['*'],
